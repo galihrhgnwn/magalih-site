@@ -1,0 +1,631 @@
+@import "tailwindcss";
+
+/* FONT FACES are declared by next/font/local in layout.tsx, which also
+   handles preload and hash-based asset URLs. No hosted stylesheet, no CDN. */
+
+/* ─────────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   World: letterpress stationery / a printed business card.
+   Palette (restrained): cream paper, warm ink, warm gray,
+   and one vermilion accent like a rubber stamp.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  --color-paper: #f2ece0;
+  --color-paper-deep: #e7dfcd;
+  --color-ink: #1a1712;
+  --color-ink-soft: #5b544b;
+  --color-accent: #b23d24;
+
+  --font-serif: var(--font-ibarra), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-fragment), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-serif);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-paper);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-ink) 22%, transparent);
+    border: 3px solid var(--color-paper);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-ink) 38%, transparent);
+  }
+}
+
+/* Paper grain: a fixed, barely-there noise layer over everything. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: var(--paper-grain);
+  background-size: 160px 160px;
+  opacity: 0.045;
+}
+
+/* Reading progress: a fixed accent hairline tied to scroll. */
+.progress-hair {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--color-accent);
+  z-index: 70;
+  pointer-events: none;
+}
+
+/* Cursor ring: a thin accent circle that trails the pointer on fine
+   pointers only. Created by effects.tsx; hidden by default until the
+   first pointermove. */
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 65;
+  transition: opacity 0.3s ease;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SHARED EDITORIAL PIECES
+   ───────────────────────────────────────────────────────────── */
+
+.field {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.sec-head {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin-top: 0.6rem;
+  text-wrap: balance;
+}
+
+.sec-no {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.55em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-right: 0.45em;
+}
+
+.hairline {
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+}
+
+/* Underline draw for links: subtle, no bounce. */
+.link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-draw:hover,
+.link-draw:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Rubber-stamp label (the "on repeat" sticker). */
+.stamp {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  border: 1.5px solid var(--color-accent);
+  padding: 0.3rem 0.55rem 0.22rem;
+  background: var(--color-paper);
+  transform: rotate(-6deg);
+  box-shadow: 0 8px 16px -8px rgba(178, 61, 36, 0.45);
+}
+
+/* Letterpress registration mark: one per page, overlapping the hero. */
+.reg-mark {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+}
+.reg-mark::before,
+.reg-mark::after {
+  content: "";
+  position: absolute;
+  background: var(--color-accent);
+}
+.reg-mark::before {
+  left: 50%;
+  top: 0;
+  width: 1.5px;
+  height: 100%;
+}
+.reg-mark::after {
+  top: 50%;
+  left: 0;
+  height: 1.5px;
+  width: 100%;
+}
+.reg-mark span {
+  position: absolute;
+  inset: 6px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 9999px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MARQUEE — a slow printed ribbon between hero and body. It is
+   aria-hidden rhythm, not content; two halves make the CSS loop
+   seamless. Pauses on hover.
+   ───────────────────────────────────────────────────────────── */
+.marquee {
+  overflow: hidden;
+  border-top: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+  padding: 0.6rem 0;
+  white-space: nowrap;
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 38s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+.marquee-half {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+  padding-right: 2.5rem;
+}
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   HERO — the name set like a masthead, three stacked lines with
+   an intentional staircase indent. The middle line is italic.
+   ───────────────────────────────────────────────────────────── */
+.name-line {
+  display: block;
+  font-weight: 600;
+  font-size: clamp(2.875rem, 11.5vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  transform: translateY(12px);
+  animation: name-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.name-line-1 {
+  animation-delay: 0.04s;
+}
+.name-line-2 {
+  font-style: italic;
+  font-weight: 500;
+  margin-left: 7vw;
+  animation-delay: 0.14s;
+}
+.name-line-3 {
+  margin-left: 14vw;
+  animation-delay: 0.24s;
+}
+.name-enddot {
+  color: var(--color-accent);
+}
+@keyframes name-in {
+  to {
+    transform: none;
+  }
+}
+
+.hero-curiosity {
+  max-width: 36ch;
+  margin-top: 2.2rem;
+  font-size: clamp(1.05rem, 2vw, 1.28rem);
+  line-height: 1.62;
+  color: var(--color-ink);
+  text-wrap: pretty;
+}
+
+.hero-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-top: 1.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  line-height: 1.7;
+  color: var(--color-ink-soft);
+  text-transform: uppercase;
+}
+.status-dot {
+  flex: 0 0 auto;
+  margin-top: 0.52em;
+  width: 7px;
+  height: 7px;
+  background: var(--color-accent);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ABOUT — asymmetric two-column: meta column + reading column
+   with a drop cap. The margin note sits as a hanging footnote.
+   ───────────────────────────────────────────────────────────── */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.5fr);
+  gap: clamp(2rem, 6vw, 5.5rem);
+}
+
+.about-body {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.4vw, 1.12rem);
+  line-height: 1.72;
+}
+.about-body p + p {
+  margin-top: 1.2rem;
+}
+.about-body .dropcap::first-letter {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  float: left;
+  font-size: 4.6em;
+  line-height: 0.78;
+  padding-right: 0.12em;
+  padding-top: 0.06em;
+  color: var(--color-ink);
+}
+
+.margin-note {
+  margin-top: 1.4rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-ink-soft);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   NOW — a logbook list. Hairline rows, mono times.
+   ───────────────────────────────────────────────────────────── */
+.now-list {
+  border-top: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+}
+
+.now-row {
+  display: grid;
+  grid-template-columns: minmax(0, 84px) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2.5rem);
+  padding: 0.95rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+  transition: padding-left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.now-row time {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-soft);
+  transition: color 0.3s ease;
+}
+.now-row p {
+  max-width: 52ch;
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+.now-row:hover {
+  padding-left: 0.6rem;
+}
+.now-row:hover time {
+  color: var(--color-accent);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SONG — a custom record sleeve + embedded Spotify player, wrapped
+   in a paper card. The sleeve overlaps the player pane. The vinyl
+   center spins slowly: the song is on repeat, after all.
+   ───────────────────────────────────────────────────────────── */
+.song-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+  background: var(--color-paper);
+}
+
+.song-cover {
+  position: relative;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  z-index: 2;
+  transform: rotate(-1.1deg);
+  margin: 0.7rem 0 0.7rem 0.7rem;
+  box-shadow: 0 24px 48px -24px rgba(26, 23, 18, 0.45);
+}
+.song-cover h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+.song-cover p {
+  margin-top: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-paper) 72%, transparent);
+}
+
+.vinyl-center {
+  position: absolute;
+  right: -18px;
+  bottom: -18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  border: 3px solid var(--color-paper);
+  box-shadow: 0 0 0 1px var(--color-ink);
+}
+.vinyl-center::after {
+  content: "";
+  position: absolute;
+  inset: 19px;
+  border-radius: 9999px;
+  background: var(--color-ink);
+  border: 1px solid var(--color-paper);
+}
+.spin-slow {
+  animation: spin 14s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.song-player {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: clamp(1.2rem, 3vw, 2rem) clamp(1.2rem, 3vw, 2rem) clamp(1.2rem, 3vw, 2rem) clamp(1.6rem, 4vw, 2.6rem);
+}
+.song-player iframe {
+  display: block;
+  width: 100%;
+  height: 152px;
+  border: 0;
+  background: var(--color-paper-deep);
+}
+.player-caption {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FIND ME — a door list. Each row is a numbered entry with dotted
+   leaders, like a table of contents. Handles are intentionally
+   hidden; on hover the label draws a small arrow that slides in.
+   ───────────────────────────────────────────────────────────── */
+.door-list {
+  border-top: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+}
+.door-row {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+}
+
+.door-link {
+  display: grid;
+  grid-template-columns: minmax(0, 52px) auto minmax(1rem, 1fr) auto;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.05rem 0.25rem;
+  transition: padding-left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.door-link:hover,
+.door-link:focus-visible {
+  padding-left: 1.1rem;
+}
+
+.door-no {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-soft);
+}
+
+.door-label-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  white-space: nowrap;
+}
+.door-label {
+  font-family: var(--font-serif);
+  font-size: 1.12rem;
+  font-weight: 600;
+}
+.door-arrow {
+  color: var(--color-accent);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.door-link:hover .door-arrow,
+.door-link:focus-visible .door-arrow {
+  opacity: 1;
+  transform: none;
+}
+
+.door-leader {
+  min-width: 1.5rem;
+  border-bottom: 1px dotted color-mix(in srgb, var(--color-ink) 30%, transparent);
+  transform: translateY(-0.28em);
+}
+
+.door-note {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+  text-align: right;
+}
+
+/* Non-link rows (Discord) stay quiet: not an anchor, so no draw. */
+.door-row--plain .door-link {
+  cursor: default;
+}
+.door-row--plain .door-link:hover {
+  padding-left: 0.25rem;
+}
+.door-row--plain .door-arrow {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   REVEAL ON SCROLL — progressive enhancement via effects.tsx.
+   The .js flag is set by JS only after it runs, so content stays
+   visible (and readable) with no JS. Elements reveal with a gentle
+   rise once in view; per-element stagger lives in --rv-delay.
+   ───────────────────────────────────────────────────────────── */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--rv-delay, 0ms);
+}
+.js [data-reveal].is-inview {
+  opacity: 1;
+  transform: none;
+}
+
+/* Motion is a modifier here, never a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cursor-ring {
+    display: none;
+  }
+}
+
+/* Cursor ring is a fine-pointer-only nicety. */
+@media (hover: none) {
+  .cursor-ring {
+    display: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE — genuinely re-composed at 375px, not scaled down.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .name-line-2 {
+    margin-left: 6vw;
+  }
+  .name-line-3 {
+    margin-left: 12vw;
+  }
+
+  .split {
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+  }
+
+  .song-card {
+    grid-template-columns: 1fr;
+  }
+  .song-cover {
+    margin: 0.55rem 0.55rem 0;
+    transform: rotate(-0.7deg);
+  }
+  .song-player {
+    padding: 1.4rem 1.1rem 1.2rem;
+  }
+
+  .door-link {
+    grid-template-columns: minmax(0, 40px) minmax(0, 1fr);
+    gap: 0.7rem;
+    padding: 0.95rem 0.1rem;
+  }
+  .door-leader {
+    display: none;
+  }
+  .door-note {
+    grid-column: 2 / -1;
+    text-align: left;
+    font-size: 0.8rem;
+    margin-top: -0.5rem;
+  }
+  .door-link:hover,
+  .door-link:focus-visible {
+    padding-left: 0.45rem;
+  }
+}

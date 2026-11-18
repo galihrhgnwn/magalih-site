@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f2ece0"/>
+
+  <!-- header mono line -->
+  <text x="96" y="82" font-family="Fragment Mono, monospace" font-size="16" fill="#5b544b" letter-spacing="4">DIGITAL BUSINESS CARD · NOVEMBER 2026 EDITION · NO. 001</text>
+
+  <!-- name: serif italic, large -->
+  <text x="96" y="260" font-family="Ibarra Real Nova, Georgia, serif" font-style="italic" font-size="100" fill="#1a1712" letter-spacing="-2">Magalih Irham</text>
+  <text x="240" y="390" font-family="Ibarra Real Nova, Georgia, serif" font-style="italic" font-size="100" fill="#1a1712" letter-spacing="-2">Gunawan.</text>
+
+  <!-- status mono line -->
+  <text x="96" y="520" font-family="Fragment Mono, monospace" font-size="18" fill="#5b544b" letter-spacing="3">BUILDING MANY THINGS AT ONCE</text>
+
+  <!-- accent dot + registration mark, top right -->
+  <circle cx="1060" cy="150" r="20" fill="#b23d24"/>
+  <line x1="1060" y1="86" x2="1060" y2="214" stroke="#b23d24" stroke-width="4"/>
+  <line x1="986" y1="150" x2="1134" y2="150" stroke="#b23d24" stroke-width="4"/>
+</svg>
